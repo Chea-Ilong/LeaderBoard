@@ -21,7 +21,7 @@ export default function NavBar() {
             <Image
                 src="/CADTIDTLogo.png"
                 width={200}
-                height={64}
+                height={100}
                 alt="IDT Logo"
             />
 
