@@ -31,7 +31,7 @@ export default function NavBar() {
                 alt="IDT Logo"
             />
 
-            <div className="flex space-x-4 ml-auto items-center font-bold relative">
+            <div className="sm:flex space-x-4 ml-auto items-center font-bold relative hidden">
                 {/* LEADERBOARD DROPDOWN */}
                 <div
                     className="relative"

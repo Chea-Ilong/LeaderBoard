@@ -13,7 +13,6 @@ export default function OverallLeaderboard() {
     setError("");
     try {
       const res = await test();
-      console.log(res.data)
       setCandidates(res.data);
     } catch (err) {
       setError("Something went wrong");
@@ -42,7 +41,7 @@ export default function OverallLeaderboard() {
               <ul className="list-disc list-inside">
                 {Object.entries(c.questions).map(([questionId, score]) => (
                   <li key={questionId}>
-                    Question ID: <strong>{questionId}</strong> – Score: <strong>{score}</strong>
+                    Question ID: <strong>{questionId}</strong> - Score: <strong>{score}</strong>
                   </li>
                 ))}
               </ul>
