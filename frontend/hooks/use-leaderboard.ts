@@ -2,39 +2,42 @@
 
 import { useState, useEffect } from "react"
 import type { LeaderboardEntry, LeaderboardType } from "@/types/leaderboard"
-import { MOCK_LEADERBOARD_DATA } from "@/constants/mock-data"
+import { fetchLeaderboardData } from "@/services/api"
+import { transformApiDataToLeaderboard } from "@/lib/utils"
 
 export function useLeaderboard(round: number, type: LeaderboardType = "individual") {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchLeaderboardData = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      // Fetch real data from API
+      const candidates = await fetchLeaderboardData()
 
-      // TODO: Replace with actual API integration
-      // const response = await leaderboardService.getLeaderboard(round, type)
-      setLeaderboardData(MOCK_LEADERBOARD_DATA)
+      // Transform API data to leaderboard format
+      const transformedData = transformApiDataToLeaderboard(candidates)
+
+      setLeaderboardData(transformedData)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred while fetching data")
+      console.error("Leaderboard fetch error:", err)
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchLeaderboardData()
+    fetchData()
   }, [round, type])
 
   return {
     leaderboardData,
     loading,
     error,
-    refetch: fetchLeaderboardData,
+    refetch: fetchData,
   }
 }
