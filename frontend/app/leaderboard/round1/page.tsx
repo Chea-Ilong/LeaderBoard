@@ -1,18 +1,19 @@
 "use client"
 
 import { useState } from "react"
+import { LeaderboardHeader } from "@/components/leaderboard/leaderboard-header"
 import { SearchAndFilters } from "@/components/leaderboard/search-and-filters"
-import { OverallLeaderboardRow } from "@/components/leaderboard/overall-leaderboard-row"
-import { OverallLeaderboardHeader } from "@/components/leaderboard/overall-leaderboard-header"
+import { LeaderboardRow } from "@/components/leaderboard/leaderboard-row"
+import { LeaderboardTableHeader } from "@/components/leaderboard/leaderboard-table-header"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { Pagination } from "@/components/leaderboard/pagination"
-import { useOverallLeaderboard } from "@/hooks/use-overall-leaderboard"
+import { useRound1Leaderboard } from "@/hooks/use-round1-leaderboard"
 import { COLORS } from "@/constants/leaderboard"
 
-export default function HomePage() {
-  const { overallData, loading, error, filters, pagination, updateFilters, changePage, refetch } =
-    useOverallLeaderboard()
+export default function Round1LeaderboardPage() {
+  const { leaderboardData, loading, error, filters, pagination, updateFilters, changePage, refetch } =
+    useRound1Leaderboard()
 
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -22,7 +23,7 @@ export default function HomePage() {
     setIsRefreshing(false)
   }
 
-  if (loading && overallData.length === 0) {
+  if (loading && leaderboardData.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 py-8 lg:py-12">
         <div className="max-w-[1800px] mx-auto px-6 lg:px-8">
@@ -44,48 +45,26 @@ export default function HomePage() {
 
   const startIndex = (pagination.currentPage - 1) * filters.participantsPerPage
   const endIndex = startIndex + filters.participantsPerPage
-  const paginatedData = overallData.slice(startIndex, endIndex)
+  const paginatedData = leaderboardData.slice(startIndex, endIndex)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 py-8 lg:py-12">
       <div className="max-w-[1800px] mx-auto px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12 lg:mb-16">
-          <h1 className="text-4xl lg:text-6xl font-semibold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6 leading-tight">
-            CADT Freshman Coding Competition
-          </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 font-medium mb-6">Overall Leaderboard - Live Rankings</p>
-
-          {/* Status Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-8 text-gray-500 text-base">
-            <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-md">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-              <span className="font-medium">Live Updates</span>
-            </div>
-            <div className="flex items-center">
-              <span className="font-medium">{overallData.length} Participants</span>
-            </div>
-            <div className="flex items-center">
-              <span className="font-medium">Overall Competition</span>
-            </div>
-          </div>
-
-          <div className="w-32 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-8 rounded-full"></div>
-        </div>
+        <LeaderboardHeader title="Individual Leaderboard - Round 1" subtitle="Foundation Challenges" />
 
         {/* Search and Filters */}
         <SearchAndFilters
           filters={filters}
           onFiltersChange={updateFilters}
           onRefresh={handleRefresh}
-          totalResults={overallData.length}
+          totalResults={leaderboardData.length}
           isRefreshing={isRefreshing}
-          showScoreFilter={true}
+          showScoreFilter={false}
         />
 
         {/* Leaderboard Table */}
         <div className="rounded-2xl p-6 lg:p-8 overflow-hidden shadow-lg" style={{ backgroundColor: COLORS.SECONDARY }}>
-          <OverallLeaderboardHeader />
+          <LeaderboardTableHeader />
 
           {/* Mobile Header */}
           <div className="lg:hidden mb-6">
@@ -93,14 +72,14 @@ export default function HomePage() {
               className="rounded-2xl px-4 py-3 text-center text-white font-medium text-xl"
               style={{ backgroundColor: COLORS.PRIMARY }}
             >
-              CADT Overall Leaderboard
+              CADT Leaderboard - Round 1
             </div>
           </div>
 
           {/* Data Rows */}
           <div className="space-y-4 lg:space-y-6">
             {paginatedData.map((entry) => (
-              <OverallLeaderboardRow key={entry.id} entry={entry} />
+              <LeaderboardRow key={entry.id} entry={entry} />
             ))}
           </div>
 

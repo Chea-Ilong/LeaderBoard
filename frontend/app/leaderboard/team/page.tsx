@@ -1,36 +1,115 @@
-import { LeaderboardHeader } from "@/components/leaderboard/leaderboard-header"
+"use client"
+
+import { useState } from "react"
+import { SearchAndFilters } from "@/components/leaderboard/search-and-filters"
+import { TeamLeaderboardRow } from "@/components/leaderboard/team-leaderboard-row"
+import { TeamLeaderboardHeader } from "@/components/leaderboard/team-leaderboard-header"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ErrorMessage } from "@/components/ui/error-message"
+import { Pagination } from "@/components/leaderboard/pagination"
+import { useTeamLeaderboard } from "@/hooks/use-team-leaderboard"
+import { COLORS } from "@/constants/leaderboard"
 
 export default function TeamLeaderboardPage() {
+  const { teamData, loading, error, filters, pagination, updateFilters, changePage, refetch } = useTeamLeaderboard()
+
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await refetch()
+    setIsRefreshing(false)
+  }
+
+  if (loading && teamData.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 py-8 lg:py-12">
+        <div className="max-w-[1800px] mx-auto px-6 lg:px-8">
+          <LoadingSpinner />
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 py-8 lg:py-12">
+        <div className="max-w-[1800px] mx-auto px-6 lg:px-8">
+          <ErrorMessage message={error} onRetry={refetch} />
+        </div>
+      </div>
+    )
+  }
+
+  const startIndex = (pagination.currentPage - 1) * filters.participantsPerPage
+  const endIndex = startIndex + filters.participantsPerPage
+  const paginatedData = teamData.slice(startIndex, endIndex)
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 py-4 sm:py-8 lg:py-12">
-      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
-        <LeaderboardHeader title="Team Leaderboard" subtitle="Team Rankings" />
-        <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
-          <div className="max-w-md mx-auto">
-            <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-12 h-12 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 py-8 lg:py-12">
+      <div className="max-w-[1800px] mx-auto px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12 lg:mb-16">
+          <h1 className="text-4xl lg:text-6xl font-semibold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6 leading-tight">
+            CADT Freshman Coding Competition
+          </h1>
+          <p className="text-xl lg:text-2xl text-gray-600 font-medium mb-6">Team Leaderboard - Team Competition</p>
+
+          {/* Status Indicators */}
+          <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-8 text-gray-500 text-base">
+            <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-md">
+              <div className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              <span className="font-medium">Live Updates</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Team Leaderboard Coming Soon</h2>
-            <p className="text-gray-600 mb-6">
-              We're working on bringing you comprehensive team rankings and statistics. Check back soon for team-based
-              competition results!
-            </p>
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <p className="text-orange-800 text-sm">
-                <strong>Features in development:</strong>
-                <br />• Team performance analytics
-                <br />• Group collaboration metrics
-                <br />• Inter-team comparisons
-              </p>
+            <div className="flex items-center">
+              <span className="font-medium">{teamData.length} Teams</span>
+            </div>
+            <div className="flex items-center">
+              <span className="font-medium">Team Competition</span>
             </div>
           </div>
+
+          <div className="w-32 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-8 rounded-full"></div>
+        </div>
+
+        {/* Search and Filters */}
+        <SearchAndFilters
+          filters={filters}
+          onFiltersChange={updateFilters}
+          onRefresh={handleRefresh}
+          totalResults={teamData.length}
+          isRefreshing={isRefreshing}
+          showScoreFilter={false}
+        />
+
+        {/* Leaderboard Table */}
+        <div className="rounded-2xl p-6 lg:p-8 overflow-hidden shadow-lg" style={{ backgroundColor: COLORS.SECONDARY }}>
+          <TeamLeaderboardHeader />
+
+          {/* Mobile Header */}
+          <div className="lg:hidden mb-6">
+            <div
+              className="rounded-2xl px-4 py-3 text-center text-white font-medium text-xl"
+              style={{ backgroundColor: COLORS.PRIMARY }}
+            >
+              CADT Team Leaderboard
+            </div>
+          </div>
+
+          {/* Data Rows */}
+          <div className="space-y-4 lg:space-y-6">
+            {paginatedData.map((team) => (
+              <TeamLeaderboardRow key={team.id} team={team} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={changePage}
+            className="mt-8"
+          />
         </div>
       </div>
     </div>

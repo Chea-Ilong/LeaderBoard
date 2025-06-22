@@ -54,31 +54,7 @@ export function LeaderboardTable({ type }: LeaderboardTableProps) {
         </div>
 
         {/* Stats Footer */}
-        <div className="mt-8 sm:mt-12 lg:mt-16 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 text-center border border-white/20">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">
-              {leaderboardData.length}
-            </div>
-            <div className="text-gray-300 text-xs sm:text-sm lg:text-base font-medium">Participants</div>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 text-center border border-white/20">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">6</div>
-            <div className="text-gray-300 text-xs sm:text-sm lg:text-base font-medium">Questions</div>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 text-center border border-white/20">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2" style={{ color: COLORS.PRIMARY }}>
-              {Math.max(...leaderboardData.map((d) => d.totalPoints))}
-            </div>
-            <div className="text-gray-300 text-xs sm:text-sm lg:text-base font-medium">Highest Score</div>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 text-center border border-white/20 col-span-2 sm:col-span-3 lg:col-span-1">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">R1</div>
-            <div className="text-gray-300 text-xs sm:text-sm lg:text-base font-medium">Active Round</div>
-          </div>
-        </div>
+       
       </div>
     </div>
   )

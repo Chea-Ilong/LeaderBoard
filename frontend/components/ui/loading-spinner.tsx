@@ -1,11 +1,22 @@
-import { Loader2 } from "lucide-react"
-import { COLORS } from "@/constants/leaderboard"
+import { cn } from "@/lib/utils"
 
-export function LoadingSpinner() {
+interface LoadingSpinnerProps {
+  className?: string
+  size?: number // Tailwind width/height value in px (defaults to 24)
+}
+
+/**
+ * A minimal tailwind-based spinner.
+ * Usage: <LoadingSpinner />  or  <LoadingSpinner size={32} />
+ */
+export function LoadingSpinner({ className, size = 24 }: LoadingSpinnerProps) {
+  const dim = `${size}px`
   return (
-    <div className="flex items-center justify-center py-12">
-      <Loader2 className="w-8 h-8 animate-spin" style={{ color: COLORS.PRIMARY }} />
-      <span className="ml-2 text-gray-600">Loading leaderboard...</span>
+    <div role="status" aria-label="Loading" className={cn("flex items-center justify-center", className)}>
+      <span
+        className="animate-spin rounded-full border-4 border-t-transparent border-gray-300"
+        style={{ width: dim, height: dim }}
+      />
     </div>
   )
 }

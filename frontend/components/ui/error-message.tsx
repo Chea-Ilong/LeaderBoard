@@ -1,22 +1,24 @@
 "use client"
 
-import { AlertCircle } from "lucide-react"
-import { Button } from "./button"
-import { COLORS } from "@/constants/leaderboard"
+import { AlertTriangle, RotateCw } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface ErrorMessageProps {
-  message: string
+  message?: string
   onRetry?: () => void
 }
 
-export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
+/**
+ * Generic error feedback block with an optional retry button.
+ */
+export function ErrorMessage({ message = "Something went wrong", onRetry }: ErrorMessageProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-red-600">
-      <AlertCircle className="w-8 h-8 mb-2" />
-      <span className="mb-4">Error: {message}</span>
+    <div className="w-full flex flex-col items-center gap-4 py-10">
+      <AlertTriangle className="h-8 w-8 text-red-500" />
+      <p className="text-red-600 font-medium">{message}</p>
       {onRetry && (
-        <Button onClick={onRetry} style={{ backgroundColor: COLORS.PRIMARY }} className="text-white hover:opacity-90">
-          Retry
+        <Button onClick={onRetry} variant="outline" className="gap-2">
+          <RotateCw className="w-4 h-4" /> Retry
         </Button>
       )}
     </div>

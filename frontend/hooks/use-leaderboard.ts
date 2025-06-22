@@ -1,43 +1,115 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import type { LeaderboardEntry, LeaderboardType } from "@/types/leaderboard"
+import { useState, useEffect, useCallback } from "react"
+import type { LeaderboardEntry, LeaderboardType, LeaderboardFilters, PaginationState } from "@/types/leaderboard"
 import { fetchLeaderboardData } from "@/services/api"
 import { transformApiDataToLeaderboard } from "@/lib/utils"
+import { LEADERBOARD_CONFIG } from "@/constants/leaderboard"
 
-export function useLeaderboard(round: number, type: LeaderboardType = "individual") {
+/**
+ * React hook for fetching, filtering and paginating individual- or team-type
+ * leaderboards.
+ *
+ * Filters:
+ *   • search (string)
+ *   • group (string | "All")
+ *   • participantsPerPage (number)  ← NEW
+ *
+ * Pagination is page-based (no infinite scroll).
+ */
+export function useLeaderboard(roundId: string, type: LeaderboardType = "individual") {
+  /* ---------- STATE ---------- */
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
+  const [filteredData, setFilteredData] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-      setError(null)
+  const [filters, setFilters] = useState<LeaderboardFilters>({
+    search: "",
+    group: "All",
+    participantsPerPage: LEADERBOARD_CONFIG.DEFAULT_PARTICIPANTS_PER_PAGE,
+  })
 
-      // Fetch real data from API
-      const candidates = await fetchLeaderboardData()
+  const [pagination, setPagination] = useState<PaginationState>({
+    currentPage: 1,
+    totalPages: 1,
+    hasMore: false,
+  })
 
-      // Transform API data to leaderboard format
-      const transformedData = transformApiDataToLeaderboard(candidates)
+  /* ---------- HELPERS ---------- */
+  const applyFilters = useCallback(() => {
+    let data = [...leaderboardData]
 
-      setLeaderboardData(transformedData)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while fetching data")
-      console.error("Leaderboard fetch error:", err)
-    } finally {
-      setLoading(false)
+    // text search
+    if (filters.search) {
+      const term = filters.search.toLowerCase()
+      data = data.filter((d) => d.fullName.toLowerCase().includes(term) || d.hackerRankId.toLowerCase().includes(term))
     }
-  }
 
+    // group filter
+    if (filters.group !== "All") data = data.filter((d) => d.group === filters.group)
+
+    // pagination meta
+    const totalPages = Math.max(1, Math.ceil(data.length / filters.participantsPerPage))
+    setFilteredData(data)
+    setPagination((prev) => ({
+      ...prev,
+      totalPages,
+      currentPage: Math.min(prev.currentPage, totalPages),
+      hasMore: false,
+    }))
+  }, [leaderboardData, filters])
+
+  const fetchData = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const res = await fetchLeaderboardData(roundId, page, 200)
+        const transformed = transformApiDataToLeaderboard(res.data)
+        setLeaderboardData(transformed)
+      } catch (err) {
+        console.error(err)
+        setError(err instanceof Error ? err.message : "Failed to fetch leaderboard")
+      } finally {
+        setLoading(false)
+      }
+    },
+    [roundId],
+  )
+
+  /* ---------- EFFECTS ---------- */
   useEffect(() => {
     fetchData()
-  }, [round, type])
+  }, [fetchData])
+
+  useEffect(() => {
+    applyFilters()
+  }, [applyFilters])
+
+  /* ---------- API ---------- */
+  const updateFilters = (patch: Partial<LeaderboardFilters>) => {
+    setFilters((prev) => ({ ...prev, ...patch }))
+    setPagination((prev) => ({ ...prev, currentPage: 1 }))
+  }
+
+  const changePage = (page: number) => setPagination((p) => ({ ...p, currentPage: page }))
+
+  // slice data for the current page
+  const paginatedData = filteredData.slice(
+    (pagination.currentPage - 1) * filters.participantsPerPage,
+    pagination.currentPage * filters.participantsPerPage,
+  )
 
   return {
-    leaderboardData,
+    leaderboardData: paginatedData,
     loading,
     error,
-    refetch: fetchData,
+    filters,
+    pagination,
+    updateFilters,
+    changePage,
+    refetch: () => fetchData(),
   }
 }
