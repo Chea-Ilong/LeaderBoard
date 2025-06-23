@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, RefreshCw, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface SearchAndFiltersProps {
   filters: {
-    searchTerm: string
-    selectedGroup: string
+    search: string
+    group: string
     participantsPerPage: number
   }
   onFiltersChange: (filters: any) => void
@@ -27,15 +27,20 @@ export function SearchAndFilters({
   isRefreshing,
   showScoreFilter = true,
 }: SearchAndFiltersProps) {
-  const [localSearchTerm, setLocalSearchTerm] = useState(filters.searchTerm)
+  const [localSearchTerm, setLocalSearchTerm] = useState(filters.search || "")
+
+  // Update local search term when filters change
+  useEffect(() => {
+    setLocalSearchTerm(filters.search || "")
+  }, [filters.search])
 
   const handleSearchChange = (value: string) => {
     setLocalSearchTerm(value)
-    onFiltersChange({ ...filters, searchTerm: value })
+    onFiltersChange({ ...filters, search: value })
   }
 
   const handleGroupChange = (value: string) => {
-    onFiltersChange({ ...filters, selectedGroup: value })
+    onFiltersChange({ ...filters, group: value })
   }
 
   const handlePageSizeChange = (value: string) => {
@@ -59,14 +64,14 @@ export function SearchAndFilters({
 
         {/* Group Filter */}
         <div className="w-full sm:w-48">
-          <Select value={filters.selectedGroup} onValueChange={handleGroupChange}>
+          <Select value={filters.group || "All"} onValueChange={handleGroupChange}>
             <SelectTrigger className="h-12 border-2 rounded-xl font-medium text-base">
               <Filter className="w-4 h-4 mr-2" />
               <SelectValue placeholder="All Groups" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Groups</SelectItem>
-              {Array.from({ length: 20 }, (_, i) => (
+              <SelectItem value="All">All Groups</SelectItem>
+              {Array.from({ length: 10 }, (_, i) => (
                 <SelectItem key={i + 1} value={`G${i + 1}`}>
                   Group {i + 1}
                 </SelectItem>
@@ -77,7 +82,7 @@ export function SearchAndFilters({
 
         {/* Page Size Selector */}
         <div className="w-full sm:w-32">
-          <Select value={filters.participantsPerPage.toString()} onValueChange={handlePageSizeChange}>
+          <Select value={(filters.participantsPerPage || 25).toString()} onValueChange={handlePageSizeChange}>
             <SelectTrigger className="h-12 border-2 rounded-xl font-medium text-base">
               <SelectValue />
             </SelectTrigger>

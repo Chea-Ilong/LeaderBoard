@@ -1,4 +1,4 @@
-import { COLORS, LEADERBOARD_CONFIG } from "@/constants/leaderboard"
+import { COLORS, LEADERBOARD_CONFIG } from "@/lib/constants"
 
 export function LeaderboardTableHeader() {
   const headerItems = [
@@ -25,7 +25,7 @@ export function LeaderboardTableHeader() {
 
       {/* Question Header */}
       <div className="flex-1 min-w-0">
-        <div className="bg-white rounded-2xl px-4 py-2 h-16 flex flex-col justify-center overflow-hidden">
+        <div className="bg-white rounded-2xl px-2 py-1 h-16 flex flex-col justify-center overflow-hidden">
           <div className="font-medium text-lg xl:text-xl text-center mb-1" style={{ color: COLORS.SECONDARY }}>
             Question
           </div>

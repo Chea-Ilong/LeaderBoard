@@ -1,4 +1,4 @@
-import { COLORS } from "@/constants/leaderboard"
+import { COLORS } from "@/lib/constants"
 
 export function OverallLeaderboardHeader() {
   const headerItems = [

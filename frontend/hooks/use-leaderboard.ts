@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react"
 import type { LeaderboardEntry, LeaderboardType, LeaderboardFilters, PaginationState } from "@/types/leaderboard"
-import { fetchLeaderboardData } from "@/services/api"
+import { fetchLeaderboardData } from "@/lib/api"
 import { transformApiDataToLeaderboard } from "@/lib/utils"
-import { LEADERBOARD_CONFIG } from "@/constants/leaderboard"
+import { LEADERBOARD_CONFIG } from "@/lib/constants"
 
 /**
  * React hook for fetching, filtering and paginating individual- or team-type
@@ -66,8 +66,8 @@ export function useLeaderboard(roundId: string, type: LeaderboardType = "individ
         setLoading(true)
         setError(null)
 
-        const res = await fetchLeaderboardData(roundId, page, 200)
-        const transformed = transformApiDataToLeaderboard(res.data)
+        const res = await fetchLeaderboardData()
+        const transformed = transformApiDataToLeaderboard(res)
         setLeaderboardData(transformed)
       } catch (err) {
         console.error(err)

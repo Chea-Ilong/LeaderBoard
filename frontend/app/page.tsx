@@ -8,7 +8,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { Pagination } from "@/components/leaderboard/pagination"
 import { useOverallLeaderboard } from "@/hooks/use-overall-leaderboard"
-import { COLORS } from "@/constants/leaderboard"
+import { COLORS } from "@/lib/constants"
 
 export default function HomePage() {
   const { overallData, loading, error, filters, pagination, updateFilters, changePage, refetch } =
@@ -54,10 +54,10 @@ export default function HomePage() {
           <h1 className="text-4xl lg:text-6xl font-semibold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6 leading-tight">
             CADT Freshman Coding Competition
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 font-medium mb-6">Overall Leaderboard - Live Rankings</p>
+          {/* <p className="text-xl lg:text-2xl text-gray-600 font-medium mb-6">Overall Leaderboard - Live Rankings</p> */}
 
           {/* Status Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-8 text-gray-500 text-base">
+          {/* <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-8 text-gray-500 text-base">
             <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-md">
               <div className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
               <span className="font-medium">Live Updates</span>
@@ -68,9 +68,9 @@ export default function HomePage() {
             <div className="flex items-center">
               <span className="font-medium">Overall Competition</span>
             </div>
-          </div>
+          </div> */}
 
-          <div className="w-32 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-8 rounded-full"></div>
+          {/* <div className="w-32 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-8 rounded-full"></div> */}
         </div>
 
         {/* Search and Filters */}

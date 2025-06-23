@@ -1,5 +1,5 @@
-import { Trophy, Star, Zap, Users } from "lucide-react"
-import { COLORS } from "@/constants/leaderboard"
+import { Star, Zap } from "lucide-react"
+import { COLORS } from "@/lib/constants"
 import type { OverallEntry } from "@/types/leaderboard"
 
 interface OverallLeaderboardRowProps {
@@ -7,28 +7,20 @@ interface OverallLeaderboardRowProps {
 }
 
 export function OverallLeaderboardRow({ entry }: OverallLeaderboardRowProps) {
-  const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="w-5 h-5 xl:w-6 xl:h-6 text-yellow-500" />
-    if (rank === 2) return <Trophy className="w-5 h-5 xl:w-6 xl:h-6 text-gray-400" />
-    if (rank === 3) return <Trophy className="w-5 h-5 xl:w-6 xl:h-6 text-amber-600" />
-    return <Users className="w-5 h-5 xl:w-6 xl:h-6" style={{ color: COLORS.PRIMARY }} />
-  }
-
   return (
     <>
       {/* Desktop Layout */}
       <div className="hidden lg:flex lg:items-center lg:gap-4 xl:gap-6">
-        {/* Rank */}
+        {/* Rank - Removed icon */}
         <div className="flex-shrink-0 w-20 xl:w-24">
           <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center justify-center">
-            {getRankIcon(entry.rank)}
-            <span className="font-bold text-lg xl:text-xl ml-2" style={{ color: COLORS.SECONDARY }}>
+            <span className="font-bold text-lg xl:text-xl" style={{ color: COLORS.SECONDARY }}>
               {entry.rank}
             </span>
           </div>
         </div>
 
-        {/* Full Name - Removed email */}
+        {/* Full Name */}
         <div className="flex-1 min-w-0 max-w-xs">
           <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center">
             <span className="font-semibold text-lg xl:text-xl truncate" style={{ color: COLORS.SECONDARY }}>
@@ -65,7 +57,7 @@ export function OverallLeaderboardRow({ entry }: OverallLeaderboardRowProps) {
           </div>
         </div>
 
-        {/* Team Score - Removed "Team" label */}
+        {/* Team Score */}
         <div className="flex-shrink-0 w-24 xl:w-28">
           <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center justify-center">
             <span className="font-bold text-lg xl:text-xl" style={{ color: COLORS.SECONDARY }}>
@@ -100,15 +92,14 @@ export function OverallLeaderboardRow({ entry }: OverallLeaderboardRowProps) {
 
       {/* Mobile Layout */}
       <div className="lg:hidden bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
-        {/* Header Row */}
+        {/* Header Row - Removed icon from mobile rank display */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center min-w-0 flex-1">
             <div
               className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full mr-4 text-white flex-shrink-0"
               style={{ backgroundColor: COLORS.PRIMARY }}
             >
-              {getRankIcon(entry.rank)}
-              <span className="ml-1 font-bold text-white text-lg sm:text-xl">{entry.rank}</span>
+              <span className="font-bold text-white text-lg sm:text-xl">{entry.rank}</span>
             </div>
             <div className="min-w-0 flex-1">
               <div className="font-bold text-lg sm:text-xl truncate" style={{ color: COLORS.SECONDARY }}>

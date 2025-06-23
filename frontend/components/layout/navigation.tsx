@@ -4,115 +4,111 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, Home, Trophy, Users, Settings } from "lucide-react"
+import { Home, Trophy, Users, Settings, Menu, X } from "lucide-react"
 
-const NAVIGATION_LINKS = {
-  main: [
-    { href: "/", label: "OVERALL LEADERBOARD", icon: Home },
-    { href: "/leaderboard/round1", label: "INDIVIDUAL ROUND 1", icon: Trophy },
-    { href: "/leaderboard/round2", label: "INDIVIDUAL ROUND 2", icon: Trophy },
-    { href: "/leaderboard/team", label: "TEAM LEADERBOARD", icon: Users },
-  ],
-  rankings: [
-    { href: "/rankings/top-10", label: "TOP 10" },
-    { href: "/rankings/top-20", label: "TOP 20" },
-  ],
-  admin: [{ href: "/admin", label: "ADMIN PANEL", icon: Settings }],
-} as const
-
-// Custom Button Component with original styling
-interface CustomButtonProps {
-  to?: string
-  label?: string
-  bgColor?: string
-  textColor?: string
-}
-
-const CustomButton = ({
-  to = "admin",
-  label = "Admin",
-  bgColor = "bg-orange-400",
-  textColor = "text-white",
-}: CustomButtonProps) => {
-  return (
-    <Link
-      href={`/${to}`}
-      className={`group relative flex items-center ${bgColor} ${textColor} transition-all duration-300 px-4 py-2 clip-angle overflow-hidden hover:bg-orange-500`}
-    >
-      <span className="transition-all duration-300 group-hover:pr-6">{label}</span>
-      <span className="absolute right-3 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-in-out">
-        <ChevronRight size={18} />
-      </span>
-    </Link>
-  )
-}
+const NAVIGATION_LINKS = [
+  { href: "/", label: "Overall", icon: Home },
+  { href: "/leaderboard/round1", label: "Round 1", icon: Trophy },
+  { href: "/leaderboard/round2", label: "Round 2", icon: Trophy },
+  { href: "/leaderboard/team", label: "Teams", icon: Users },
+] as const
 
 export function Navigation() {
   const pathname = usePathname()
-  const [isDropdownOpen, setDropdownOpen] = useState(false)
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <nav className="bg-white shadow-lg p-4 flex px-5 items-center border-b-2 border-orange-100">
-      <Link href="/" className="flex items-center">
-        <Image src="/CADTIDTLogo.png" width={200} height={100} alt="CADT IDT Logo" className="cursor-pointer" />
-      </Link>
+    <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/CADTIDTLogo.png"
+              width={160}
+              height={80}
+              alt="CADT IDT Logo"
+              className="cursor-pointer transition-transform duration-300 group-hover:scale-105"
+            />
+          </Link>
 
-      <div className="flex space-x-6 ml-auto items-center font-bold relative">
-        {/* MAIN NAVIGATION DROPDOWN */}
-        <div
-          className="relative"
-          onMouseEnter={() => setDropdownOpen(true)}
-          onMouseLeave={() => setDropdownOpen(false)}
-        >
-          <div className="flex justify-between items-center cursor-pointer text-blue-950 hover:text-orange-400 transition-colors duration-300">
-            <Trophy className="w-5 h-5 mr-2" />
-            <span>LEADERBOARDS</span>
-            <ChevronDown size={18} className="ml-2" />
-          </div>
-          {isDropdownOpen && (
-            <div className="absolute top-full left-0 bg-white border-t-4 border-blue-950 shadow-xl w-80 z-50 p-6 rounded-b-lg">
-              <div className="space-y-3">
-                {NAVIGATION_LINKS.main.map(({ href, label, icon: Icon }) => {
-                  const isActive = pathname === href
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      className={`flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 ${
-                        isActive
-                          ? "text-white bg-orange-400 shadow-md"
-                          : "text-blue-950 hover:bg-orange-50 hover:text-orange-400"
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 mr-3" />
-                      {label}
-                    </Link>
-                  )
-                })}
-              </div>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-1">
+            {NAVIGATION_LINKS.map(({ href, label, icon: Icon }) => {
+              const isActive = pathname === href
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? "bg-orange-500 text-white shadow-md"
+                      : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mr-2" />
+                  {label}
+                </Link>
+              )
+            })}
+
+            {/* Admin Button */}
+            <div className="ml-6 pl-6 border-l border-gray-200">
+              <Link
+                href="/admin"
+                className="flex items-center bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-200"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Admin
+              </Link>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* RANKINGS LINKS */}
-        {NAVIGATION_LINKS.rankings.map(({ href, label }) => {
-          const isActive = pathname === href
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center px-3 py-2 rounded-lg transition-colors duration-300 ${
-                isActive ? "text-orange-400 bg-orange-50" : "text-blue-950 hover:text-orange-400 hover:bg-orange-50"
-              }`}
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-lg text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-colors duration-200"
             >
-              <Trophy className="w-4 h-4 mr-2" />
-              {label}
-            </Link>
-          )
-        })}
-
-        <CustomButton to="admin" label="Admin Panel" />
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Mobile Navigation */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-200 bg-white">
+          <div className="px-4 py-3 space-y-1">
+            {NAVIGATION_LINKS.map(({ href, label, icon: Icon }) => {
+              const isActive = pathname === href
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    isActive ? "bg-orange-500 text-white" : "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mr-3" />
+                  {label}
+                </Link>
+              )
+            })}
+            <div className="pt-3 mt-3 border-t border-gray-200">
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-200"
+              >
+                <Settings className="w-4 h-4 mr-3" />
+                Admin Panel
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

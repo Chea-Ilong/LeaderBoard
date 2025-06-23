@@ -20,5 +20,4 @@ export const COLORS = {
 
 export const FILTER_OPTIONS = {
   GROUPS: ["All", "G1", "G2", "G3"] as const,
-  // Removed SCORE_RANGES as requested
 } as const

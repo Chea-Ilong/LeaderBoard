@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { TeamEntry, LeaderboardFilters, PaginationState } from "@/types/leaderboard"
-import { fetchTeamLeaderboardData } from "@/services/api"
+import { fetchTeamLeaderboardData } from "@/lib/api"
 import { transformApiDataToTeams } from "@/lib/utils"
-import { LEADERBOARD_CONFIG } from "@/constants/leaderboard"
+import { LEADERBOARD_CONFIG } from "@/lib/constants"
 
 export function useTeamLeaderboard() {
   const [teamData, setTeamData] = useState<TeamEntry[]>([])
@@ -67,7 +67,7 @@ export function useTeamLeaderboard() {
     }
 
     // Group filter
-    if (filters.group !== "All") {
+    if (filters.group && filters.group !== "All" && filters.group !== "all") {
       filtered = filtered.filter((team) => team.member1.group === filters.group || team.member2.group === filters.group)
     }
 
@@ -83,7 +83,15 @@ export function useTeamLeaderboard() {
   }, [teamData, filters])
 
   const updateFilters = useCallback((newFilters: Partial<LeaderboardFilters>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }))
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+      // Ensure values are never undefined
+      search: newFilters.search ?? prev.search ?? "",
+      group: newFilters.group ?? prev.group ?? "All",
+      participantsPerPage:
+        newFilters.participantsPerPage ?? prev.participantsPerPage ?? LEADERBOARD_CONFIG.DEFAULT_PARTICIPANTS_PER_PAGE,
+    }))
     setPagination((prev) => ({ ...prev, currentPage: 1 }))
   }, [])
 

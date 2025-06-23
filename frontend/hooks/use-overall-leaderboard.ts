@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { OverallEntry, LeaderboardFilters, PaginationState } from "@/types/leaderboard"
-import { fetchRound1Data, fetchRound2Data, fetchTeamLeaderboardData } from "@/services/api"
+import { fetchRound1Data, fetchRound2Data, fetchTeamLeaderboardData } from "@/lib/api"
 import { transformApiDataToOverall } from "@/lib/utils"
-import { LEADERBOARD_CONFIG } from "@/constants/leaderboard"
+import { LEADERBOARD_CONFIG } from "@/lib/constants"
 
 export function useOverallLeaderboard() {
   const [overallData, setOverallData] = useState<OverallEntry[]>([])
@@ -63,23 +63,31 @@ export function useOverallLeaderboard() {
     }
 
     // Group filter
-    if (filters.group !== "All") {
+    if (filters.group && filters.group !== "All" && filters.group !== "all") {
       filtered = filtered.filter((entry) => entry.group === filters.group)
     }
 
     setFilteredData(filtered)
 
     // Update pagination
-    const totalPages = Math.ceil(filtered.length / filters.participantsPerPage)
+    const totalPages = Math.max(1, Math.ceil(filtered.length / filters.participantsPerPage))
     setPagination((prev) => ({
       ...prev,
       totalPages,
-      currentPage: Math.min(prev.currentPage, totalPages || 1),
+      currentPage: Math.min(prev.currentPage, totalPages),
     }))
   }, [overallData, filters])
 
   const updateFilters = useCallback((newFilters: Partial<LeaderboardFilters>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }))
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+      // Ensure values are never undefined
+      search: newFilters.search ?? prev.search ?? "",
+      group: newFilters.group ?? prev.group ?? "All",
+      participantsPerPage:
+        newFilters.participantsPerPage ?? prev.participantsPerPage ?? LEADERBOARD_CONFIG.DEFAULT_PARTICIPANTS_PER_PAGE,
+    }))
     setPagination((prev) => ({ ...prev, currentPage: 1 }))
   }, [])
 

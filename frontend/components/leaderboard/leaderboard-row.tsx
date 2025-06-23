@@ -1,5 +1,4 @@
-import { Trophy } from "lucide-react"
-import { COLORS } from "@/constants/leaderboard"
+import { COLORS } from "@/lib/constants"
 import type { LeaderboardEntry } from "@/types/leaderboard"
 
 interface LeaderboardRowProps {
@@ -11,10 +10,9 @@ export function LeaderboardRow({ entry }: LeaderboardRowProps) {
     <>
       {/* Desktop Layout */}
       <div className="hidden lg:flex lg:items-center lg:gap-4 xl:gap-6">
-        {/* Rank */}
+        {/* Rank - Removed icon */}
         <div className="flex-shrink-0 w-24 xl:w-28">
           <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center justify-center">
-            <Trophy className="w-5 h-5 xl:w-6 xl:h-6 mr-2" style={{ color: COLORS.PRIMARY }} />
             <span className="font-semibold text-lg xl:text-xl" style={{ color: COLORS.SECONDARY }}>
               {entry.rank}
             </span>
@@ -65,15 +63,14 @@ export function LeaderboardRow({ entry }: LeaderboardRowProps) {
 
       {/* Mobile Layout */}
       <div className="lg:hidden bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
-        {/* Header Row */}
+        {/* Header Row - Removed icon from mobile rank display */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <div
               className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full mr-4 text-white"
               style={{ backgroundColor: COLORS.PRIMARY }}
             >
-              <Trophy className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-              <span className="ml-1 font-semibold text-white text-lg sm:text-xl">{entry.rank}</span>
+              <span className="font-semibold text-white text-lg sm:text-xl">{entry.rank}</span>
             </div>
             <div>
               <div className="font-semibold text-lg sm:text-xl" style={{ color: COLORS.SECONDARY }}>

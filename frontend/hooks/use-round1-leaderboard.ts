@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { fetchRound1Data } from "@/services/api"
+import { fetchRound1Data } from "@/lib/api"
 import type { LeaderboardEntry, LeaderboardFilters } from "@/types/leaderboard"
 import { transformApiDataToLeaderboard } from "@/lib/utils"
 
@@ -64,7 +64,14 @@ export function useRound1Leaderboard(): UseRound1LeaderboardReturn {
 
   const updateFilters = useCallback((newFilters: Partial<LeaderboardFilters>) => {
     console.log("Updating filters:", newFilters)
-    setFilters((prev) => ({ ...prev, ...newFilters }))
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+      // Ensure values are never undefined
+      search: newFilters.search ?? prev.search ?? "",
+      group: newFilters.group ?? prev.group ?? "all",
+      participantsPerPage: newFilters.participantsPerPage ?? prev.participantsPerPage ?? 25,
+    }))
     setPagination((prev) => ({ ...prev, currentPage: 1 })) // Reset to first page when filters change
   }, [])
 

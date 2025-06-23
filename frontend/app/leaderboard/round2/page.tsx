@@ -9,7 +9,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { Pagination } from "@/components/leaderboard/pagination"
 import { useRound2Leaderboard } from "@/hooks/use-round2-leaderboard"
-import { COLORS } from "@/constants/leaderboard"
+import { COLORS } from "@/lib/constants"
 
 export default function Round2LeaderboardPage() {
   const { leaderboardData, loading, error, filters, pagination, updateFilters, changePage, refetch } =
