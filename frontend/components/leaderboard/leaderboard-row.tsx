@@ -8,43 +8,36 @@ interface LeaderboardRowProps {
 export function LeaderboardRow({ entry }: LeaderboardRowProps) {
   return (
     <>
-      {/* Desktop Layout */}
-      <div className="hidden lg:flex lg:items-center lg:gap-4 xl:gap-6">
-        {/* Rank - Removed icon */}
-        <div className="flex-shrink-0 w-24 xl:w-28">
-          <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center justify-center">
-            <span className="font-semibold text-lg xl:text-xl" style={{ color: COLORS.SECONDARY }}>
+      {/* Desktop Layout - Extra Large screens */}
+      <div className="hidden xl:grid xl:grid-cols-12 xl:gap-4">
+        <div className="col-span-1">
+          <div className="bg-white rounded-2xl px-3 py-4 h-16 flex items-center justify-center shadow-sm">
+            <span className="font-bold text-lg" style={{ color: COLORS.SECONDARY }}>
               {entry.rank}
             </span>
           </div>
         </div>
-
-        {/* Full Name */}
-        <div className="flex-1 min-w-0 max-w-xs">
-          <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center">
-            <span className="font-medium text-lg xl:text-xl truncate" style={{ color: COLORS.SECONDARY }}>
+        <div className="col-span-3 min-w-0">
+          <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center shadow-sm">
+            <span className="font-semibold text-lg truncate" style={{ color: COLORS.SECONDARY }}>
               {entry.fullName}
             </span>
           </div>
         </div>
-
-        {/* Group */}
-        <div className="flex-shrink-0 w-24 xl:w-28">
+        <div className="col-span-1">
           <div
-            className="rounded-2xl px-4 py-4 h-16 flex items-center justify-center text-white font-medium text-lg xl:text-xl"
+            className="rounded-2xl px-3 py-4 h-16 flex items-center justify-center text-white font-bold text-lg"
             style={{ backgroundColor: COLORS.PRIMARY }}
           >
             {entry.group}
           </div>
         </div>
-
-        {/* Question Scores */}
-        <div className="flex-1 min-w-0">
-          <div className="bg-white rounded-2xl px-6 py-4 h-16 flex items-center">
+        <div className="col-span-5">
+          <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center shadow-sm">
             <div className="grid grid-cols-6 gap-2 w-full">
               {entry.scores.map((score, scoreIndex) => (
                 <div key={scoreIndex} className="text-center">
-                  <span className="font-semibold text-lg xl:text-xl" style={{ color: COLORS.SECONDARY }}>
+                  <span className="font-bold text-lg" style={{ color: COLORS.SECONDARY }}>
                     {score}
                   </span>
                 </div>
@@ -52,69 +45,174 @@ export function LeaderboardRow({ entry }: LeaderboardRowProps) {
             </div>
           </div>
         </div>
-
-        {/* Total Points */}
-        <div className="flex-shrink-0 w-28 xl:w-32">
-          <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center justify-center">
-            <span className="font-semibold text-red-500 text-xl xl:text-2xl">{entry.totalPoints}</span>
+        <div className="col-span-2">
+          <div className="bg-white rounded-2xl px-4 py-4 h-16 flex items-center justify-center shadow-sm">
+            <span className="font-bold text-red-500 text-xl">{entry.totalPoints}</span>
           </div>
         </div>
       </div>
 
-      {/* Mobile Layout */}
-      <div className="lg:hidden bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
-        {/* Header Row - Removed icon from mobile rank display */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <div
-              className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full mr-4 text-white"
-              style={{ backgroundColor: COLORS.PRIMARY }}
-            >
-              <span className="font-semibold text-white text-lg sm:text-xl">{entry.rank}</span>
-            </div>
-            <div>
-              <div className="font-semibold text-lg sm:text-xl" style={{ color: COLORS.SECONDARY }}>
-                {entry.fullName}
-              </div>
-              <div className="text-sm sm:text-base text-gray-600 font-medium">Group {entry.group}</div>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="font-semibold text-red-500 text-2xl sm:text-3xl">{entry.totalPoints}</div>
-            <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">Total Points</div>
+      {/* Tablet Layout - Large screens */}
+      <div className="hidden lg:grid xl:hidden lg:grid-cols-10 lg:gap-3">
+        <div className="col-span-1">
+          <div className="bg-white rounded-xl px-2 py-3 h-14 flex items-center justify-center shadow-sm">
+            <span className="font-bold text-base" style={{ color: COLORS.SECONDARY }}>
+              {entry.rank}
+            </span>
           </div>
         </div>
-
-        {/* Question Scores Row */}
-        <div className="mb-4">
-          <div className="text-sm sm:text-base font-medium mb-3" style={{ color: COLORS.SECONDARY }}>
-            Question Scores
+        <div className="col-span-3 min-w-0">
+          <div className="bg-white rounded-xl px-3 py-3 h-14 flex items-center shadow-sm">
+            <span className="font-semibold text-base truncate" style={{ color: COLORS.SECONDARY }}>
+              {entry.fullName}
+            </span>
           </div>
-          <div className="bg-gray-50 rounded-2xl p-3">
-            <div className="text-center font-medium text-sm mb-2" style={{ color: COLORS.SECONDARY }}>
-              Question
-            </div>
-            <div className="rounded-lg overflow-hidden mb-3" style={{ backgroundColor: COLORS.PRIMARY }}>
-              <div className="grid grid-cols-6 h-8">
-                {[1, 2, 3, 4, 5, 6].map((num) => (
-                  <div
-                    key={num}
-                    className="flex items-center justify-center text-white font-medium text-sm border-r border-white/20 last:border-r-0"
-                  >
-                    {num}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-6 gap-1">
+        </div>
+        <div className="col-span-1">
+          <div
+            className="rounded-xl px-2 py-3 h-14 flex items-center justify-center text-white font-bold text-base"
+            style={{ backgroundColor: COLORS.PRIMARY }}
+          >
+            {entry.group}
+          </div>
+        </div>
+        <div className="col-span-4">
+          <div className="bg-white rounded-xl px-3 py-3 h-14 flex items-center shadow-sm">
+            <div className="grid grid-cols-6 gap-1 w-full">
               {entry.scores.map((score, scoreIndex) => (
-                <div key={scoreIndex} className="bg-white rounded-lg py-2 sm:py-3 text-center shadow-sm">
-                  <div className="font-semibold text-lg sm:text-xl" style={{ color: COLORS.SECONDARY }}>
+                <div key={scoreIndex} className="text-center">
+                  <span className="font-bold text-sm" style={{ color: COLORS.SECONDARY }}>
                     {score}
-                  </div>
+                  </span>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+        <div className="col-span-1">
+          <div className="bg-white rounded-xl px-2 py-3 h-14 flex items-center justify-center shadow-sm">
+            <span className="font-bold text-red-500 text-base">{entry.totalPoints}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Small Tablet Layout - Medium screens */}
+      <div className="hidden md:grid lg:hidden md:grid-cols-8 md:gap-2">
+        <div className="col-span-1">
+          <div className="bg-white rounded-lg px-2 py-2 h-12 flex items-center justify-center shadow-sm">
+            <span className="font-bold text-sm" style={{ color: COLORS.SECONDARY }}>
+              {entry.rank}
+            </span>
+          </div>
+        </div>
+        <div className="col-span-3 min-w-0">
+          <div className="bg-white rounded-lg px-3 py-2 h-12 flex items-center shadow-sm">
+            <span className="font-semibold text-sm truncate" style={{ color: COLORS.SECONDARY }}>
+              {entry.fullName}
+            </span>
+          </div>
+        </div>
+        <div className="col-span-1">
+          <div
+            className="rounded-lg px-2 py-2 h-12 flex items-center justify-center text-white font-bold text-sm"
+            style={{ backgroundColor: COLORS.PRIMARY }}
+          >
+            {entry.group}
+          </div>
+        </div>
+        <div className="col-span-2">
+          <div className="bg-white rounded-lg px-2 py-2 h-12 flex items-center shadow-sm">
+            <div className="flex justify-center space-x-1 w-full">
+              {entry.scores.slice(0, 3).map((score, scoreIndex) => (
+                <span key={scoreIndex} className="font-bold text-xs" style={{ color: COLORS.SECONDARY }}>
+                  {score}
+                </span>
+              ))}
+              <span className="text-xs text-gray-400">...</span>
+            </div>
+          </div>
+        </div>
+        <div className="col-span-1">
+          <div className="bg-white rounded-lg px-2 py-2 h-12 flex items-center justify-center shadow-sm">
+            <span className="font-bold text-red-500 text-sm">{entry.totalPoints}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Layout - Small screens */}
+      <div className="md:hidden bg-white rounded-xl p-3 sm:p-4 shadow-lg">
+        {/* Header Row */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center min-w-0 flex-1">
+            <div
+              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 text-white flex-shrink-0"
+              style={{ backgroundColor: COLORS.PRIMARY }}
+            >
+              <span className="font-bold text-white text-base sm:text-lg">{entry.rank}</span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-bold text-base sm:text-lg truncate" style={{ color: COLORS.SECONDARY }}>
+                {entry.fullName}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-600 font-medium">Group {entry.group}</div>
+            </div>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <div className="font-bold text-red-500 text-xl sm:text-2xl">{entry.totalPoints}</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">Total</div>
+          </div>
+        </div>
+
+        {/* Question Scores - Compact Mobile View */}
+        <div className="bg-gray-50 rounded-lg p-2 sm:p-3">
+          <div className="text-xs sm:text-sm font-bold mb-2 text-center" style={{ color: COLORS.SECONDARY }}>
+            Question Scores
+          </div>
+          <div className="grid grid-cols-6 gap-1">
+            {entry.scores.map((score, scoreIndex) => (
+              <div key={scoreIndex} className="bg-white rounded-md py-1 sm:py-2 text-center shadow-sm">
+                <div className="text-xs text-gray-500 mb-0.5">Q{scoreIndex + 1}</div>
+                <div className="font-bold text-sm sm:text-base" style={{ color: COLORS.SECONDARY }}>
+                  {score}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Extra Small Mobile - Very small screens */}
+      <div className="block sm:hidden md:hidden">
+        <div className="bg-white rounded-lg p-2 shadow-lg mb-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center mr-2 text-white"
+                style={{ backgroundColor: COLORS.PRIMARY }}
+              >
+                <span className="font-bold text-sm">{entry.rank}</span>
+              </div>
+              <div className="min-w-0">
+                <div className="font-bold text-sm truncate" style={{ color: COLORS.SECONDARY }}>
+                  {entry.fullName}
+                </div>
+                <div className="text-xs text-gray-600">{entry.group}</div>
+              </div>
+            </div>
+            <div className="font-bold text-red-500 text-lg">{entry.totalPoints}</div>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            {entry.scores.slice(0, 3).map((score, scoreIndex) => (
+              <div key={scoreIndex} className="bg-gray-50 rounded p-1 text-center">
+                <div className="text-xs text-gray-500">Q{scoreIndex + 1}</div>
+                <div className="font-bold text-sm" style={{ color: COLORS.SECONDARY }}>
+                  {score}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-1">
+            <button className="text-xs text-blue-500 font-medium">View All Scores</button>
           </div>
         </div>
       </div>

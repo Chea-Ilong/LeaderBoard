@@ -27,7 +27,7 @@ export function LeaderboardTable({ type }: LeaderboardTableProps) {
   }
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="w-full mx-auto p-4 sm:p-6 lg:p-8">
       <RoundSelector activeRound={activeRound} onRoundChange={setActiveRound} />
 
       <div
@@ -52,9 +52,6 @@ export function LeaderboardTable({ type }: LeaderboardTableProps) {
             <LeaderboardRow key={entry.id} entry={entry} />
           ))}
         </div>
-
-        {/* Stats Footer */}
-       
       </div>
     </div>
   )

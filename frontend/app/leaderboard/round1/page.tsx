@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { LeaderboardHeader } from "@/components/leaderboard/leaderboard-header"
 import { SearchAndFilters } from "@/components/leaderboard/search-and-filters"
 import { LeaderboardRow } from "@/components/leaderboard/leaderboard-row"
@@ -12,16 +11,8 @@ import { useRound1Leaderboard } from "@/hooks/use-round1-leaderboard"
 import { COLORS } from "@/lib/constants"
 
 export default function Round1LeaderboardPage() {
-  const { leaderboardData, loading, error, filters, pagination, updateFilters, changePage, refetch } =
+  const { leaderboardData, loading, refreshing, error, filters, pagination, updateFilters, changePage, refetch } =
     useRound1Leaderboard()
-
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    await refetch()
-    setIsRefreshing(false)
-  }
 
   if (loading && leaderboardData.length === 0) {
     return (
@@ -56,9 +47,9 @@ export default function Round1LeaderboardPage() {
         <SearchAndFilters
           filters={filters}
           onFiltersChange={updateFilters}
-          onRefresh={handleRefresh}
+          onRefresh={refetch}
           totalResults={leaderboardData.length}
-          isRefreshing={isRefreshing}
+          isRefreshing={refreshing}
           showScoreFilter={false}
         />
 

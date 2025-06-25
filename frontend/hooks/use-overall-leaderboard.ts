@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { OverallEntry, LeaderboardFilters, PaginationState } from "@/types/leaderboard"
-import { fetchRound1Data, fetchRound2Data, fetchTeamLeaderboardData } from "@/lib/api"
-import { transformApiDataToOverall } from "@/lib/utils"
+import { getAllParticipantOverall } from "@/lib/api"
 import { LEADERBOARD_CONFIG } from "@/lib/constants"
 
 export function useOverallLeaderboard() {
@@ -30,16 +29,28 @@ export function useOverallLeaderboard() {
       setLoading(true)
       setError(null)
 
-      // Fetch from all sources: Round 1, Round 2, and Team
-      // Team data is crucial for calculating team scores for each member
-      const [round1, round2, team] = await Promise.all([
-        fetchRound1Data(), // returns CandidateData[]
-        fetchRound2Data(), // returns CandidateData[]
-        fetchTeamLeaderboardData(), // returns CandidateData[]
-      ])
+      console.log("Fetching overall leaderboard data from custom API...")
 
-      // Transform data with proper team score integration
-      const transformedData = transformApiDataToOverall(round1, round2, team)
+      // Use your custom overall API function
+      const overallResults = await getAllParticipantOverall()
+
+      // Transform the data to match OverallEntry format
+      const transformedData: OverallEntry[] = overallResults
+        .map((result, index) => ({
+          id: index + 1,
+          rank: index + 1, // Will be recalculated after sorting
+          fullName: result.fullName,
+          hackerRankId: result.fullName, // Use fullName as hackerRankId
+          group: `G${result.group}`, // Convert number to group format
+          round1Score: result.round1,
+          round2Score: result.round2,
+          teamScore: result.teamScore,
+          bonus: result.bonusScore,
+          energizer: 0, // Not in your data structure
+          totalPoints: result.totalScore,
+        }))
+        .sort((a, b) => b.totalPoints - a.totalPoints) // Sort by total score descending
+        .map((entry, index) => ({ ...entry, rank: index + 1 })) // Recalculate ranks
 
       setOverallData(transformedData)
     } catch (err) {
@@ -105,7 +116,7 @@ export function useOverallLeaderboard() {
     applyFilters()
   }, [applyFilters])
 
-  // Set up live updates to keep team scores synchronized
+  // Set up live updates
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)

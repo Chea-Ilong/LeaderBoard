@@ -1,7 +1,8 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { LeaderboardEntry, TeamEntry, OverallEntry } from "@/types/leaderboard"
-import type { CandidateData } from "@/services/api"
+import type { CandidateData } from "@/lib/api"
+import { QUESTION_ID_MAPPING, QUESTION_IDS, QUESTION_LABELS } from "@/lib/api"
 
 /* -------------------------------------------------------------------------- */
 /*  Generic helpers                                                           */
@@ -49,6 +50,52 @@ export function formatTimestamp(timestamp: string) {
   } catch {
     return "Invalid Date"
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Question score helpers                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Convert questions object to array of 6 scores using proper question ID mapping
+ * This ensures questions appear in the correct positions even if some are missing
+ */
+export function questionsToScoresArray(questions: Record<string, number>): number[] {
+  // Initialize array with 6 zeros
+  const scores = new Array(6).fill(0)
+
+  if (!questions || typeof questions !== "object") {
+    return scores
+  }
+
+  // Map each question ID to its correct position
+  Object.entries(questions).forEach(([questionId, score]) => {
+    const position = QUESTION_ID_MAPPING[questionId as keyof typeof QUESTION_ID_MAPPING]
+
+    if (position !== undefined && position >= 0 && position < 6) {
+      scores[position] = Math.round(Number(score) || 0)
+    }
+  })
+
+  return scores
+}
+
+/**
+ * Get question headers for display
+ */
+export function getQuestionHeaders(): string[] {
+  return QUESTION_LABELS || QUESTION_IDS.map((_, index) => `Q${index + 1}`)
+}
+
+/**
+ * Debug function to show which questions are present
+ */
+export function debugQuestions(questions: Record<string, number>): void {
+  console.log("Questions debug:")
+  Object.entries(questions).forEach(([questionId, score]) => {
+    const position = QUESTION_ID_MAPPING[questionId as keyof typeof QUESTION_ID_MAPPING]
+    console.log(`Question ID ${questionId} -> Position ${position} -> Score ${score}`)
+  })
 }
 
 /* -------------------------------------------------------------------------- */
@@ -100,34 +147,24 @@ export function transformCandidateToLeaderboardEntry(candidate: CandidateData, i
     return createDefaultLeaderboardEntry(index)
   }
 
-  // Extract and validate question scores - they should already be in q1, q2, q3 format from the API service
-  const questionScores = candidate.questions || {}
-  const scores = Array.from({ length: 6 }, (_, i) => {
-    const questionKey = `q${i + 1}`
-    const score = questionScores[questionKey]
-    const numericScore = Number.parseFloat(score as any)
-    return isNaN(numericScore) ? 0 : Math.round(numericScore)
-  })
+  // Convert questions object to scores array
+  const scores = questionsToScoresArray(candidate.questions)
 
-  // Derive name from email with validation
-  const email = candidate.email || `participant${index + 1}@example.com`
-  const fullName = email
-    .split("@")[0]
-    .replace(/\./g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase())
+  // Use email as display name (since your API uses fullName as email)
+  const fullName = candidate.email || `Participant ${index + 1}`
 
   // Validate and parse total score
   const totalScore = Number.parseFloat(candidate.score as any)
   const validTotalScore = isNaN(totalScore) ? 0 : Math.round(totalScore)
 
-  // Generate group assignment
-  const group = generateGroup(email, index)
+  // Generate group assignment from the name
+  const group = generateGroup(fullName, index)
 
   return {
     id: index + 1,
     rank: index + 1,
     fullName,
-    hackerRankId: email,
+    hackerRankId: fullName, // Use fullName as hackerRankId for display
     group,
     scores,
     totalPoints: validTotalScore,
@@ -187,27 +224,29 @@ export function transformApiDataToTeams(candidates: CandidateData[]): TeamEntry[
     return []
   }
 
-  // Check if this is already team data (emails contain "team.")
-  const isTeamData = candidates.some((c) => c.email && c.email.includes("team."))
+  // Check if this is already team data (emails contain "&")
+  const isTeamData = candidates.some((c) => c.email && c.email.includes("&"))
 
   if (isTeamData) {
     console.log("Processing team-specific data")
     // Transform team candidates directly into team entries
     return candidates
       .map((candidate, index) => {
-        const teamName = candidate.email
-          .split("@")[0]
-          .replace("team.", "")
-          .replace(/\b\w/g, (l) => l.toUpperCase())
+        const teamMembers = candidate.email.split(" & ")
+        const member1Name = teamMembers[0] || `Team ${index + 1} Member 1`
+        const member2Name = teamMembers[1] || `Team ${index + 1} Member 2`
+
+        // Convert questions to scores array
+        const combinedScores = questionsToScoresArray(candidate.questions)
 
         // Create mock team members from the team data
         const member1: LeaderboardEntry = {
           id: index * 2 + 1,
           rank: index + 1,
-          fullName: `${teamName} Member 1`,
-          hackerRankId: `${candidate.email.split("@")[0]}.member1@${candidate.email.split("@")[1]}`,
-          group: generateGroup(candidate.email, index * 2),
-          scores: Object.values(candidate.questions || {}).map((score) => Math.round((score as number) / 2)),
+          fullName: member1Name,
+          hackerRankId: member1Name,
+          group: generateGroup(member1Name, index * 2),
+          scores: combinedScores.map((score) => Math.round(score / 2)),
           totalPoints: Math.round(candidate.score / 2),
           bonus: 0,
           energizer: 0,
@@ -216,23 +255,19 @@ export function transformApiDataToTeams(candidates: CandidateData[]): TeamEntry[
         const member2: LeaderboardEntry = {
           id: index * 2 + 2,
           rank: index + 1,
-          fullName: `${teamName} Member 2`,
-          hackerRankId: `${candidate.email.split("@")[0]}.member2@${candidate.email.split("@")[1]}`,
-          group: generateGroup(candidate.email, index * 2 + 1),
-          scores: Object.values(candidate.questions || {}).map((score) => Math.round((score as number) / 2)),
+          fullName: member2Name,
+          hackerRankId: member2Name,
+          group: generateGroup(member2Name, index * 2 + 1),
+          scores: combinedScores.map((score) => Math.round(score / 2)),
           totalPoints: Math.round(candidate.score / 2),
           bonus: 0,
           energizer: 0,
         }
 
-        const combinedScores = Object.values(candidate.questions || {}).map((score) =>
-          isNaN(score as number) ? 0 : Math.round(score as number),
-        )
-
         return {
           id: index + 1,
           rank: index + 1,
-          teamName: `Team ${teamName}`,
+          teamName: `Team ${index + 1}`,
           member1,
           member2,
           combinedScores,

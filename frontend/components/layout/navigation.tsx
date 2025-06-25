@@ -53,7 +53,7 @@ export function Navigation() {
             })}
 
             {/* Admin Button */}
-            <div className="ml-6 pl-6 border-l border-gray-200">
+            {/* <div className="ml-6 pl-6 border-l border-gray-200">
               <Link
                 href="/admin"
                 className="flex items-center bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-200"
@@ -61,7 +61,7 @@ export function Navigation() {
                 <Settings className="w-4 h-4 mr-2" />
                 Admin
               </Link>
-            </div>
+            </div> */}
           </div>
 
           {/* Mobile Menu Button */}

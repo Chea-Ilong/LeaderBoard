@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import type { TeamEntry, LeaderboardFilters, PaginationState } from "@/types/leaderboard"
 import { fetchTeamLeaderboardData } from "@/lib/api"
 import { transformApiDataToTeams } from "@/lib/utils"
@@ -10,133 +10,106 @@ export function useTeamLeaderboard() {
   const [teamData, setTeamData] = useState<TeamEntry[]>([])
   const [filteredData, setFilteredData] = useState<TeamEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
   const [filters, setFilters] = useState<LeaderboardFilters>({
     search: "",
     group: "All",
     participantsPerPage: LEADERBOARD_CONFIG.DEFAULT_PARTICIPANTS_PER_PAGE,
   })
+
   const [pagination, setPagination] = useState<PaginationState>({
-    currentTab: 1,
     currentPage: 1,
     totalPages: 1,
     hasMore: false,
   })
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      console.log("Fetching team leaderboard data...")
-
-      // Fetch the raw candidate data
-      const candidateData = await fetchTeamLeaderboardData()
-      console.log("Raw team candidate data:", candidateData)
-
-      // Transform candidates into team entries
-      const transformedTeams = transformApiDataToTeams(candidateData)
-      console.log("Transformed team data:", transformedTeams)
-
-      setTeamData(transformedTeams)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred while fetching team data"
-      setError(errorMessage)
-      console.error("Team leaderboard fetch error:", err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  
 
   const applyFilters = useCallback(() => {
-    let filtered = [...teamData]
+    let data = [...teamData]
 
-    // Search filter
     if (filters.search) {
-      const searchTerm = filters.search.toLowerCase()
-      filtered = filtered.filter(
-        (team) =>
-          team.teamName.toLowerCase().includes(searchTerm) ||
-          team.member1.fullName.toLowerCase().includes(searchTerm) ||
-          team.member2.fullName.toLowerCase().includes(searchTerm) ||
-          team.member1.hackerRankId.toLowerCase().includes(searchTerm) ||
-          team.member2.hackerRankId.toLowerCase().includes(searchTerm),
+      const term = filters.search.toLowerCase()
+      data = data.filter(
+        (d) =>
+          d.teamName.toLowerCase().includes(term) ||
+          d.member1.fullName.toLowerCase().includes(term) ||
+          d.member2.fullName.toLowerCase().includes(term),
       )
     }
 
-    // Group filter
-    if (filters.group && filters.group !== "All" && filters.group !== "all") {
-      filtered = filtered.filter((team) => team.member1.group === filters.group || team.member2.group === filters.group)
+    if (filters.group !== "All") {
+      data = data.filter((d) => d.member1.group === filters.group || d.member2.group === filters.group)
     }
 
-    setFilteredData(filtered)
-
-    // Update pagination
-    const totalPages = Math.max(1, Math.ceil(filtered.length / filters.participantsPerPage))
+    const totalPages = Math.max(1, Math.ceil(data.length / filters.participantsPerPage))
+    setFilteredData(data)
     setPagination((prev) => ({
       ...prev,
       totalPages,
       currentPage: Math.min(prev.currentPage, totalPages),
+      hasMore: false,
     }))
   }, [teamData, filters])
 
-  const updateFilters = useCallback((newFilters: Partial<LeaderboardFilters>) => {
-    setFilters((prev) => ({
-      ...prev,
-      ...newFilters,
-      // Ensure values are never undefined
-      search: newFilters.search ?? prev.search ?? "",
-      group: newFilters.group ?? prev.group ?? "All",
-      participantsPerPage:
-        newFilters.participantsPerPage ?? prev.participantsPerPage ?? LEADERBOARD_CONFIG.DEFAULT_PARTICIPANTS_PER_PAGE,
-    }))
-    setPagination((prev) => ({ ...prev, currentPage: 1 }))
+  const fetchData = useCallback(async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+      setError(null)
+
+      const res = await fetchTeamLeaderboardData()
+      const transformed = transformApiDataToTeams(res)
+      setTeamData(transformed)
+    } catch (err) {
+      console.error("Team fetch error:", err)
+      setError(err instanceof Error ? err.message : "Failed to fetch team leaderboard")
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
   }, [])
 
-  const changePage = useCallback((page: number) => {
-    setPagination((prev) => ({
-      ...prev,
-      currentPage: Math.max(1, Math.min(page, prev.totalPages)),
-    }))
-  }, [])
-
-  // Initial data fetch
   useEffect(() => {
     fetchData()
   }, [fetchData])
 
-  // Apply filters when data or filters change
   useEffect(() => {
     applyFilters()
   }, [applyFilters])
 
-  // Set up live updates
-  useEffect(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
+  const updateFilters = (patch: Partial<LeaderboardFilters>) => {
+    setFilters((prev) => ({ ...prev, ...patch }))
+    setPagination((prev) => ({ ...prev, currentPage: 1 }))
+  }
 
-    intervalRef.current = setInterval(() => {
-      fetchData()
-    }, LEADERBOARD_CONFIG.LIVE_UPDATE_INTERVAL)
+  const changePage = (page: number) => {
+    setPagination((p) => ({ ...p, currentPage: page }))
+  }
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
+  const refetch = useCallback(() => {
+    return fetchData(true)
   }, [fetchData])
 
+  const paginatedData = filteredData.slice(
+    (pagination.currentPage - 1) * filters.participantsPerPage,
+    pagination.currentPage * filters.participantsPerPage,
+  )
+
   return {
-    teamData: filteredData,
+    teamData: paginatedData,
     loading,
+    refreshing,
     error,
     filters,
     pagination,
     updateFilters,
     changePage,
-    refetch: fetchData,
+    refetch,
   }
 }

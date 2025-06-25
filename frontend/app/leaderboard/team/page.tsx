@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { SearchAndFilters } from "@/components/leaderboard/search-and-filters"
 import { TeamLeaderboardRow } from "@/components/leaderboard/team-leaderboard-row"
 import { TeamLeaderboardHeader } from "@/components/leaderboard/team-leaderboard-header"
@@ -11,15 +10,8 @@ import { useTeamLeaderboard } from "@/hooks/use-team-leaderboard"
 import { COLORS } from "@/lib/constants"
 
 export default function TeamLeaderboardPage() {
-  const { teamData, loading, error, filters, pagination, updateFilters, changePage, refetch } = useTeamLeaderboard()
-
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    await refetch()
-    setIsRefreshing(false)
-  }
+  const { teamData, loading, refreshing, error, filters, pagination, updateFilters, changePage, refetch } =
+    useTeamLeaderboard()
 
   if (loading && teamData.length === 0) {
     return (
@@ -76,9 +68,9 @@ export default function TeamLeaderboardPage() {
         <SearchAndFilters
           filters={filters}
           onFiltersChange={updateFilters}
-          onRefresh={handleRefresh}
+          onRefresh={refetch}
           totalResults={teamData.length}
-          isRefreshing={isRefreshing}
+          isRefreshing={refreshing}
           showScoreFilter={false}
         />
 
